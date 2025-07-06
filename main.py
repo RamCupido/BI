@@ -15,7 +15,7 @@ def main():
     create_schema(cursor, conn)
     load_data(df_transformed, cursor, conn)
 
-    print("✅ Proceso ETL y carga completado correctamente.")
+    print("Proceso ETL y carga completado correctamente.")
 
 if __name__ == '__main__':
     main()
