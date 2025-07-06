@@ -1,6 +1,6 @@
 from utils.helper import get_or_insert_dim
 
-def load_data(df, cursor, conn):
+def load_persona_data(df, cursor, conn):
     for _, row in df.iterrows():
         id_tiempo = get_or_insert_dim(cursor, 'dim_tiempo', ['PERIODO'], [row['periodo']], 'ID_TIEMPO')
         id_ubicacion = get_or_insert_dim(cursor, 'dim_ubicacion', ['PROVINCIA', 'REGION'], [row['PROVINCIA'], row['REGION']], 'ID_UBICACION')
@@ -19,3 +19,28 @@ def load_data(df, cursor, conn):
             row['empleo'], row['fexp']
         ))
     conn.commit()
+    print("Datos de persona cargados correctamente en la base de datos")
+
+
+def load_vivienda_data(df, cursor, conn):
+    for _, row in df.iterrows():
+        id_tiempo = get_or_insert_dim(cursor, 'dim_tiempo', ['PERIODO'], [row['periodo']], 'ID_TIEMPO')
+        id_ubicacion = get_or_insert_dim(cursor, 'dim_ubicacion', ['PROVINCIA', 'REGION'], [row['PROVINCIA'], row['REGION']], 'ID_UBICACION')
+        id_tipo = get_or_insert_dim(cursor, 'dim_tipo_vivienda', ['DESCRIPCION'], [row['TIPO_VIVIENDA']], 'ID_TIPO_VIVIENDA')
+        id_material = get_or_insert_dim(cursor, 'dim_material_vivienda',
+            ['MATERIAL_TECHO', 'MATERIAL_PARED', 'MATERIAL_PISO'],
+            [row['MATERIAL_TECHO'], row['MATERIAL_PARED'], row['MATERIAL_PISO']],
+            'ID_MATERIAL'
+        )
+
+        cursor.execute("""
+            INSERT INTO hechos_vivienda (
+                ID_TIEMPO, ID_UBICACION, ID_TIPO_VIVIENDA, ID_MATERIAL,
+                ACCESO_AGUA, ACCESO_ELECTRICIDAD
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            id_tiempo, id_ubicacion, id_tipo, id_material,
+            row['ACCESO_AGUA'], row['ACCESO_ELECTRICIDAD']
+        ))
+    conn.commit()
+    print("Datos de vivienda cargados correctamente en la base de datos")

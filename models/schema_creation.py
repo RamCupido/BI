@@ -1,4 +1,4 @@
-def create_schema(cursor, conn):
+def create_schema_persona(cursor, conn):
     cursor.execute("""
     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'dim_tiempo')
     BEGIN
@@ -70,4 +70,4 @@ def create_schema(cursor, conn):
     """)
     conn.commit()
     
-    print("Esquema de base de datos creado o verificado correctamente.")
+    print("Esquema de base de datos de persona creado o verificado correctamente.")
