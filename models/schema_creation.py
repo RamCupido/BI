@@ -4,7 +4,7 @@ def create_schema_persona(cursor, conn):
     BEGIN
         CREATE TABLE dim_tiempo (
             ID_TIEMPO INT IDENTITY(1,1) PRIMARY KEY,
-            PERIODO VARCHAR(10) UNIQUE
+            PERIODO SMALLINT  NOT NULL UNIQUE
         )
     END
 

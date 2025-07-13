@@ -24,7 +24,11 @@ def get_region_and_provincia(cod):
 def transform_persona_data(df):
     cols = ['area', 'ciudad', 'p02', 'p03', 'p06', 'p10a', 'p11', 'p72b',
             'fexp', 'ingrl', 'ingpc', 'pobreza', 'epobreza', 'empleo', 'periodo']
+    
     df = df.loc[:, df.columns.intersection(cols)].dropna().drop_duplicates().copy()
+
+    # Convertir 'periodo' a datetime y extraer año
+    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.year
 
     # Región / Provincia
     regiones = df['ciudad'].apply(lambda x: pd.Series(get_region_and_provincia(x)))
@@ -62,13 +66,15 @@ def transform_persona_data(df):
     df['ingrl'] = pd.to_numeric(df['ingrl'], errors='coerce').fillna(0.0)
     df['INGRESO_PENSION'] = pd.to_numeric(df['INGRESO_PENSION'], errors='coerce').fillna(0.0)
 
-    df.to_excel("persona_transformada.xlsx", index=False)
     print("Transformación de datos de persona completada")
     return df
 
 def transform_vivienda_data(df):
     cols = ['periodo','ciudad','vi02','vi03a','vi04a','vi05a','vi10','vi12']
     df = df.loc[:, df.columns.intersection(cols)].dropna().drop_duplicates().copy()
+
+     # Convertir 'periodo' a datetime y extraer año
+    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.year
 
     # Renombrar
     df.rename(columns={
@@ -106,6 +112,5 @@ def transform_vivienda_data(df):
     df['ACCESO_AGUA'] = df['ACCESO_AGUA'].astype(str).str.strip().isin([str(i) for i in range(1,6)]).map({True:'Si', False:'No'})
     df['ACCESO_ELECTRICIDAD'] = df['ACCESO_ELECTRICIDAD'].astype(str).str.strip().isin(['1','2']).map({True:'Si', False:'No'})
 
-    df.to_excel("vivienda_transformada.xlsx", index=False)
     print("Transformación de datos de vivienda completada")
     return df
