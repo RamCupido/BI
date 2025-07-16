@@ -1,4 +1,5 @@
 def create_schema_persona(cursor, conn):
+    print("Creando esquema de base de datos de persona...")
     cursor.execute("""
     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'dim_tiempo')
     BEGIN

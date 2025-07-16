@@ -1,4 +1,5 @@
 def create_vivienda_schema(cursor, conn):
+    print("Creando esquema de base de datos de vivienda...")
     cursor.execute("""
     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'dim_tipo_vivienda')
     BEGIN
