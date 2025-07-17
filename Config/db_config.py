@@ -8,4 +8,4 @@ def get_connection():
         'UID=sa;'
         'PWD=TuPassword123!'
     )
-print("Conexión a la base de datos establecida correctamente")
+print("🔗 Conexión a la base de datos establecida correctamente")

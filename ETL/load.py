@@ -45,7 +45,7 @@ def bulk_load_dim(cursor, table, key_cols, keys, id_col):
 
 
 def load_persona_data(df: pd.DataFrame, cursor, conn):
-    print("Cargando datos de persona a la Data Warehouse...")
+    print("🔄Cargando datos de persona a la Data Warehouse...")
     # 0. Normalizar nulos
     dims = ['periodo','PROVINCIA','REGION','SEXO','EDAD','ANALFABETO']
     df[dims] = df[dims].fillna('Desconocido')
@@ -89,7 +89,7 @@ def load_persona_data(df: pd.DataFrame, cursor, conn):
     ))
     df_new = df[~df['__key__'].isin(existing_keys)].copy()
     if df_new.empty:
-        print("No hay registros nuevos para insertar en hechos_enemdu.")
+        print("⚠️ No hay registros nuevos para insertar en hechos_enemdu.")
         return
 
     # 5. Preparar batch de hechos y ejecutar
@@ -112,11 +112,11 @@ def load_persona_data(df: pd.DataFrame, cursor, conn):
         records
     )
     conn.commit()
-    print(f"{len(records)} filas nuevas insertadas en hechos_enemdu.")
+    print(f"✅ {len(records)} filas nuevas insertadas en hechos_enemdu.")
 
 
 def load_vivienda_data(df: pd.DataFrame, cursor, conn):
-    print("Cargando datos de vivienda a la Data Warehouse...")
+    print("🔄Cargando datos de vivienda a la Data Warehouse...")
     # 0. Normalizar nulos
     dims = ['periodo','PROVINCIA','REGION','TIPO_VIVIENDA',
             'MATERIAL_TECHO','MATERIAL_PARED','MATERIAL_PISO']
@@ -153,7 +153,7 @@ def load_vivienda_data(df: pd.DataFrame, cursor, conn):
     df['__key__'] = list(zip(df.ID_TIEMPO, df.ID_UBICACION, df.ID_TIPO_VIVIENDA, df.ID_MATERIAL))
     df_new_v = df[~df['__key__'].isin(existing_keys_v)].copy()
     if df_new_v.empty:
-        print("No hay registros nuevos para insertar en hechos_vivienda.")
+        print("⚠️ No hay registros nuevos para insertar en hechos_vivienda.")
         return
 
     # 5. Batch insert hechos_vivienda
@@ -170,4 +170,4 @@ def load_vivienda_data(df: pd.DataFrame, cursor, conn):
         records_v
     )
     conn.commit()
-    print(f"{len(records_v)} filas nuevas insertadas en hechos_vivienda.")
+    print(f"✅ {len(records_v)} filas nuevas insertadas en hechos_vivienda.")

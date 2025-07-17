@@ -1,5 +1,5 @@
 def create_vivienda_schema(cursor, conn):
-    print("Creando esquema de base de datos de vivienda...")
+    print("📄 Creando esquema de base de datos de vivienda...")
     cursor.execute("""
     IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'dim_tipo_vivienda')
     BEGIN
@@ -38,4 +38,4 @@ def create_vivienda_schema(cursor, conn):
     END
     """)
     conn.commit()
-    print("Esquema de base de datos de vivienda creado o verificado correctamente")
+    print("✅​ Esquema de base de datos de vivienda creado o verificado correctamente")

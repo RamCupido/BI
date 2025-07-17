@@ -22,7 +22,7 @@ def get_region_and_provincia(cod):
         return ('Desconocida', 'Desconocida')
 
 def transform_persona_data(df):
-    print("Transformando datos de persona...")
+    print("⏳Transformando datos de persona...")
     cols = ['area', 'ciudad', 'p02', 'p03', 'p06', 'p10a', 'p11', 'p72b',
             'fexp', 'ingrl', 'ingpc', 'pobreza', 'epobreza', 'empleo', 'periodo']
     
@@ -84,11 +84,11 @@ def transform_persona_data(df):
         df[col] = df[col].clip(lower=0)
 
     df.to_excel('transformado_personas.xlsx', index=False)
-    print("Transformación de datos de persona completada")
+    print("✅ Transformación de datos de persona completada")
     return df
 
 def transform_vivienda_data(df):
-    print("Transformando datos de vivienda...")
+    print("⏳Transformando datos de vivienda...")
     cols = ['periodo','ciudad','vi02','vi03a','vi04a','vi05a','vi10','vi12']
     df = df.loc[:, df.columns.intersection(cols)].dropna().drop_duplicates().copy()
 
@@ -132,5 +132,5 @@ def transform_vivienda_data(df):
     df['ACCESO_ELECTRICIDAD'] = df['ACCESO_ELECTRICIDAD'].astype(str).str.strip().isin(['1','2']).map({True:'Si', False:'No'})
 
     df.to_excel('transformado_viviendas.xlsx', index=False)
-    print("Transformación de datos de vivienda completada")
+    print("✅ Transformación de datos de vivienda completada")
     return df
