@@ -5,7 +5,7 @@ def create_schema_persona(cursor, conn):
     BEGIN
         CREATE TABLE dim_tiempo (
             ID_TIEMPO INT IDENTITY(1,1) PRIMARY KEY,
-            PERIODO SMALLINT  NOT NULL UNIQUE
+            PERIODO VARCHAR(10) NOT NULL UNIQUE
         )
     END
 
@@ -57,6 +57,7 @@ def create_schema_persona(cursor, conn):
             ID_ESTADO_CIVIL INT,
             INGRESO_LABORAL FLOAT,
             INGRESO_PENSION FLOAT,
+            INGRESO_PER_CAPITA FLOAT,
             POBREZA VARCHAR(2),
             EXTREMA_POBREZA VARCHAR(2),
             EMPLEO VARCHAR(2),

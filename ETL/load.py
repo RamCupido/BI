@@ -1,4 +1,5 @@
 import pandas as pd
+import pyodbc
 
 def clean_param(value):
     """
@@ -10,20 +11,34 @@ def clean_param(value):
         return value
 
 def bulk_load_dim(cursor, table, key_cols, keys, id_col):
-    """
-    Inserta en bloque las claves faltantes en la dimensión y devuelve un mapeo {clave_tuple → id}.
-    """
     cols = ','.join(key_cols) + f", {id_col}"
     cursor.execute(f"SELECT {cols} FROM {table}")
     existing = {tuple(row[:-1]): row[-1] for row in cursor.fetchall()}
 
-    unique_keys = list({tuple(k) for k in keys})
+    # <-- Aseguramos que las claves sean del mismo tipo que en la tabla
+    unique_keys = []
+    for k in keys:
+        casted = []
+        for val in k:
+            # si la tabla usa INT y val es digito, lo casteamos
+            if isinstance(val, str) and val.isdigit():
+                casted.append(int(val))
+            else:
+                casted.append(clean_param(val))
+        unique_keys.append(tuple(casted))
+    unique_keys = list(set(unique_keys))
+
     missing = [k for k in unique_keys if k not in existing]
     if missing:
-        cleaned = [tuple(clean_param(v) for v in k) for k in missing]
         placeholders = ','.join('?' for _ in key_cols)
         sql = f"INSERT INTO {table} ({','.join(key_cols)}) VALUES ({placeholders})"
-        cursor.executemany(sql, cleaned)
+        try:
+            cursor.executemany(sql, missing)
+        except pyodbc.IntegrityError as e:
+            if 'Violation of UNIQUE KEY' in str(e):
+                pass
+            else:
+                raise
 
     cursor.execute(f"SELECT {cols} FROM {table}")
     return {tuple(row[:-1]): row[-1] for row in cursor.fetchall()}
@@ -81,7 +96,7 @@ def load_persona_data(df: pd.DataFrame, cursor, conn):
     cols = [
         'ID_TIEMPO','ID_UBICACION','ID_PERSONA',
         'ID_EDUCACION','ID_ESTADO_CIVIL',
-        'ingrl','INGRESO_PENSION','POBREZA',
+        'INGRESO_LABORAL','INGRESO_PENSION','INGRESO_PER_CAPITA','POBREZA',
         'EXTREMA_POBREZA','empleo','fexp'
     ]
     records = list(df_new[cols].itertuples(index=False, name=None))
@@ -90,9 +105,9 @@ def load_persona_data(df: pd.DataFrame, cursor, conn):
         """
         INSERT INTO hechos_enemdu
         (ID_TIEMPO, ID_UBICACION, ID_PERSONA, ID_EDUCACION,
-         ID_ESTADO_CIVIL, INGRESO_LABORAL, INGRESO_PENSION,
+         ID_ESTADO_CIVIL, INGRESO_LABORAL, INGRESO_PENSION, INGRESO_PER_CAPITA,
          POBREZA, EXTREMA_POBREZA, EMPLEO, FEXP)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         records
     )

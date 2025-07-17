@@ -28,8 +28,8 @@ def transform_persona_data(df):
     
     df = df.loc[:, df.columns.intersection(cols)].dropna().drop_duplicates().copy()
 
-    # Convertir 'periodo' a datetime y extraer año
-    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.year
+    # Convertir 'periodo' a string 'YYYYMM' para varchar
+    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.strftime('%Y')
 
     # Región / Provincia
     regiones = df['ciudad'].apply(lambda x: pd.Series(get_region_and_provincia(x)))
@@ -43,6 +43,8 @@ def transform_persona_data(df):
         'p10a': 'NIVEL_INSTRUCCION',
         'p11': 'ANALFABETO',
         'p72b': 'INGRESO_PENSION',
+        'ingrl': 'INGRESO_LABORAL',
+        'ingpc': 'INGRESO_PER_CAPITA',
         'pobreza': 'POBREZA',
         'epobreza': 'EXTREMA_POBREZA'
     }, inplace=True)
@@ -63,9 +65,23 @@ def transform_persona_data(df):
     df['EXTREMA_POBREZA'] = df['EXTREMA_POBREZA'].astype(str).str.strip().eq('1').map({True:'Si', False:'No'})
     df['empleo'] = df['empleo'].astype(str).str.strip().eq('1').map({True:'Si', False:'No'})
 
-    # A números
-    df['ingrl'] = pd.to_numeric(df['ingrl'], errors='coerce').fillna(0.0)
-    df['INGRESO_PENSION'] = pd.to_numeric(df['INGRESO_PENSION'], errors='coerce').fillna(0.0)
+    numeric_cols = ['INGRESO_LABORAL', 'INGRESO_PENSION', 'INGRESO_PER_CAPITA']
+    for col in numeric_cols:
+        # Convertimos a str para poder aplicar str.replace
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.replace('.', '', regex=False)  # quita miles
+            .str.replace(',', '.', regex=False) # coma a punto
+        )
+        # Convertimos a float
+        df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0)
+
+        df[col] = df[col].replace(999999, 100)
+
+        # Validar y ajustar negativos
+        n_neg = (df[col] < 0).sum()
+        df[col] = df[col].clip(lower=0)
 
     df.to_excel('transformado_personas.xlsx', index=False)
     print("Transformación de datos de persona completada")
@@ -76,8 +92,8 @@ def transform_vivienda_data(df):
     cols = ['periodo','ciudad','vi02','vi03a','vi04a','vi05a','vi10','vi12']
     df = df.loc[:, df.columns.intersection(cols)].dropna().drop_duplicates().copy()
 
-     # Convertir 'periodo' a datetime y extraer año
-    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.year
+    # Convertir 'periodo' a string 'YYYYMM' para varchar
+    df['periodo'] = pd.to_datetime(df['periodo'], format='%Y%m', errors='coerce').dt.strftime('%Y')
 
     # Renombrar
     df.rename(columns={

@@ -2,7 +2,7 @@ import os
 import glob
 import pandas as pd
 
-def extract_csvs(input_path, *, sep=';', encoding='utf-8', decimal=',', low_memory=False):
+def extract_csvs(input_path, *, sep=';', encoding='utf-8', decimal=',', thousands='.', low_memory=False):
     
     # Comprobamos si es carpeta o archivo
     if os.path.isdir(input_path):
@@ -22,6 +22,7 @@ def extract_csvs(input_path, *, sep=';', encoding='utf-8', decimal=',', low_memo
                          sep=sep,
                          encoding=encoding,
                          decimal=decimal,
+                         thousands=thousands,
                          low_memory=low_memory)
         print(f"CSV cargado correctamente desde: {ruta}")
         dfs.append(df)

@@ -20,7 +20,6 @@ def main():
     df_viviendas_tr = transform_vivienda_data(df_viviendas)
     create_vivienda_schema(cursor, conn)
     load_vivienda_data(df_viviendas_tr, cursor, conn)
-
     print("Proceso ETL y carga completado correctamente.")
 
 if __name__ == '__main__':
